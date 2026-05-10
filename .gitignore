@@ -1,0 +1,17 @@
+# Session-specific task files (project-specific, not part of the framework)
+tasks/todo.md
+tasks/lessons.md
+tasks/handoff-*.md
+
+# MCP configuration (may contain secrets)
+.kiro/settings/mcp.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo

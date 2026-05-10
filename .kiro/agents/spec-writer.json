@@ -1,0 +1,117 @@
+{
+  "name": "spec-writer",
+  "description": "Generates kiro spec files (requirements.md/design.md/tasks.md) through dialogue with the developer. Does not implement code.",
+  "model": "claude-sonnet-4.6",
+  "prompt": "file://../prompts/spec-writer.md",
+  "tools": [
+    "fs_read",
+    "fs_write",
+    "grep",
+    "glob",
+    "code",
+    "knowledge"
+  ],
+  "allowedTools": [
+    "code",
+    "fs_read",
+    "glob",
+    "grep",
+    "knowledge"
+  ],
+  "toolsSettings": {
+    "fs_write": {
+      "allowedPaths": [
+        ".kiro/specs/**",
+        "tasks/**"
+      ],
+      "deniedPaths": [
+        "**/.env",
+        "**/.env.*",
+        "**/package-lock.json",
+        "**/*.secrets.*",
+        "**/azure-pipelines-*.yml",
+        "**/.github/workflows/*.yml",
+        "**/.gitlab-ci.yml"
+      ]
+    }
+  },
+  "resources": [
+    "file://tasks/todo.md",
+    "file://tasks/lessons.md",
+    "file://.kiro/specs/_template/requirements.md",
+    "file://.kiro/specs/_template/design.md",
+    "file://.kiro/specs/_template/tasks.md",
+    {
+      "type": "knowledgeBase",
+      "source": "file://./design",
+      "name": "Design Documents",
+      "indexType": "best",
+      "include": [
+        "**/*.md",
+        "**/*.yaml"
+      ],
+      "exclude": [
+        "**/context/**",
+        "**/tmp/**",
+        "**/review/**",
+        "**/old/**",
+        "**/issues/**",
+        "**/md/**"
+      ],
+      "autoUpdate": true
+    },
+    "skill://.kiro/skills/product-context/SKILL.md",
+    "skill://.kiro/skills/tech-stack/SKILL.md",
+    "skill://.kiro/skills/code-structure/SKILL.md",
+    "skill://.kiro/skills/dev-workflow/SKILL.md",
+    "skill://.kiro/skills/security-constraints/SKILL.md",
+    "skill://.kiro/skills/workflow-diagrams/SKILL.md",
+    "skill://.kiro/skills/spec-ears-notation-guide/SKILL.md"
+  ],
+  "hooks": {
+    "agentSpawn": [
+      {
+        "command": "bash .kiro/scripts/session-start-hook.sh"
+      }
+    ],
+    "userPromptSubmit": [
+      {
+        "command": "git branch --show-current 2>/dev/null && git diff --stat HEAD 2>/dev/null | tail -1 && ls -d .kiro/specs/*/requirements.md 2>/dev/null | head -5 | sed 's/^/📋 /'",
+        "cache_ttl_seconds": 30
+      }
+    ],
+    "stop": [
+      {
+        "command": "bash .kiro/scripts/stop-hook.sh"
+      }
+    ],
+    "preToolUse": [
+      {
+        "matcher": "write",
+        "command": "bash .kiro/scripts/guard-schema-hook.sh"
+      }
+    ],
+    "postToolUse": [
+      {
+        "matcher": "write",
+        "command": "bash .kiro/scripts/spec-review-reminder-hook.sh"
+      }
+    ]
+  },
+  "mcpServers": {
+    "design-docs": {
+      "command": "npx",
+      "args": [
+        "@modelcontextprotocol/server-filesystem@2026.1.14",
+        "${DESIGN_DIR}"
+      ],
+      "disabledTools": [
+        "write_file",
+        "create_directory",
+        "move_file"
+      ]
+    }
+  },
+  "keyboardShortcut": "ctrl+shift+w",
+  "welcomeMessage": "Creating spec files (requirements/design/tasks). No implementation. Will guide to implementation agents upon completion."
+}

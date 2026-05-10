@@ -1,0 +1,12 @@
+{
+  "_doc": "Common configuration template for all agents. Propagated to each agent by sync-agents.py.",
+  "deniedPaths": [
+    "**/.env",
+    "**/.env.*",
+    "**/package-lock.json",
+    "**/*.secrets.*",
+    "**/azure-pipelines-*.yml",
+    "**/.github/workflows/*.yml",
+    "**/.gitlab-ci.yml"
+  ]
+}

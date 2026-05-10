@@ -1,0 +1,96 @@
+{
+  "name": "system-guide",
+  "description": "A specialized agent that answers questions about system specifications, design, and implementation. Cross-references design documents and implementation code, explicitly noting any discrepancies. Does not modify code (read-only).",
+  "model": "claude-sonnet-4.6",
+  "prompt": "file://../prompts/system-guide.md",
+  "tools": [
+    "fs_read",
+    "execute_bash",
+    "grep",
+    "glob",
+    "code",
+    "knowledge"
+  ],
+  "allowedTools": [
+    "code",
+    "fs_read",
+    "glob",
+    "grep",
+    "knowledge"
+  ],
+  "toolsSettings": {
+    "execute_bash": {
+      "autoAllowReadonly": true
+    }
+  },
+  "resources": [
+    "file://tasks/todo.md",
+    "file://tasks/lessons.md",
+    {
+      "type": "knowledgeBase",
+      "source": "file://./design",
+      "name": "Design Documents",
+      "indexType": "best",
+      "include": [
+        "**/*.md",
+        "**/*.yaml"
+      ],
+      "exclude": [
+        "**/context/**",
+        "**/tmp/**",
+        "**/review/**",
+        "**/old/**",
+        "**/issues/**",
+        "**/md/**"
+      ],
+      "autoUpdate": true
+    },
+    "skill://.kiro/skills/product-context/SKILL.md",
+    "skill://.kiro/skills/tech-stack/SKILL.md",
+    "skill://.kiro/skills/code-structure/SKILL.md",
+    "skill://.kiro/skills/security-constraints/SKILL.md",
+    "skill://.kiro/skills/adr-quick-reference/SKILL.md",
+    "skill://.kiro/skills/error-handling-pattern/SKILL.md",
+    "skill://.kiro/skills/workflow-diagrams/SKILL.md"
+  ],
+  "hooks": {
+    "agentSpawn": [
+      {
+        "command": "bash .kiro/scripts/session-start-hook.sh"
+      }
+    ],
+    "userPromptSubmit": [
+      {
+        "command": "git branch --show-current 2>/dev/null && git diff --stat HEAD 2>/dev/null | tail -1",
+        "cache_ttl_seconds": 30
+      }
+    ],
+    "preToolUse": [
+      {
+        "matcher": "shell",
+        "command": "bash .kiro/scripts/security-hook.sh"
+      }
+    ],
+    "stop": [
+      {
+        "command": "bash .kiro/scripts/stop-hook.sh"
+      }
+    ]
+  },
+  "mcpServers": {
+    "design-docs": {
+      "command": "npx",
+      "args": [
+        "@modelcontextprotocol/server-filesystem@2026.1.14",
+        "${DESIGN_DIR}"
+      ],
+      "disabledTools": [
+        "write_file",
+        "create_directory",
+        "move_file"
+      ]
+    }
+  },
+  "keyboardShortcut": "ctrl+shift+h",
+  "welcomeMessage": "Answering questions about system specifications (read-only). Cross-references design documents and implementation code, explicitly noting any discrepancies.\nWhat would you like to know?"
+}

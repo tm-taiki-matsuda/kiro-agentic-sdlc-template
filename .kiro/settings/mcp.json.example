@@ -1,0 +1,31 @@
+{
+  "_note": "Each agent defines its mcpServers within its own JSON. Use this file only when global MCP servers are needed.",
+  "_env_vars": {
+    "DATABASE_URL": "postgresql://user:password@localhost:5432/your_db (for postgres MCP)",
+    "DESIGN_DIR": "/path/to/your-project/design (for spec-writer design-docs MCP)"
+  },
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@0.0.70"],
+      "description": "Playwright E2E test execution and UI inspection"
+    },
+    "postgres": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-postgres@0.6.2"],
+      "env": {
+        "DATABASE_URL": "${DATABASE_URL}"
+      },
+      "description": "Direct PostgreSQL access. Used for schema verification and query validation."
+    },
+    "design-docs": {
+      "command": "npx",
+      "args": [
+        "@modelcontextprotocol/server-filesystem@2026.1.14",
+        "${DESIGN_DIR}"
+      ],
+      "description": "Read-only access to design documents. Set the DESIGN_DIR environment variable.",
+      "disabledTools": ["write_file", "create_directory", "move_file"]
+    }
+  }
+}

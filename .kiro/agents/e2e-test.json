@@ -1,0 +1,105 @@
+{
+  "name": "e2e-test",
+  "description": "An agent that generates and runs TypeScript Keyword-Driven E2E tests (PageObject→Keywords→TestCase). Always generates TypeScript, never JSON.",
+  "model": "claude-sonnet-4.6",
+  "prompt": "file://../prompts/e2e-test.md",
+  "tools": [
+    "fs_read",
+    "fs_write",
+    "execute_bash",
+    "grep",
+    "glob",
+    "task",
+    "code"
+  ],
+  "allowedTools": [
+    "code",
+    "fs_read",
+    "glob",
+    "grep",
+    "task"
+  ],
+  "toolsSettings": {
+    "fs_write": {
+      "allowedPaths": [
+        "frontend/tests/pages/**",
+        "frontend/tests/keywords/**",
+        "frontend/tests/testcases/**",
+        "tasks/**"
+      ],
+      "deniedPaths": [
+        "**/.env",
+        "**/.env.*",
+        "**/package-lock.json",
+        "**/*.secrets.*",
+        "**/azure-pipelines-*.yml",
+        "**/.github/workflows/*.yml",
+        "**/.gitlab-ci.yml"
+      ]
+    },
+    "execute_bash": {
+      "autoAllowReadonly": true
+    }
+  },
+  "resources": [
+    "file://tasks/todo.md",
+    "file://tasks/lessons.md",
+    "skill://.kiro/skills/test-framework/SKILL.md",
+    "skill://.kiro/skills/tech-stack/SKILL.md",
+    "skill://.kiro/skills/product-context/SKILL.md",
+    "skill://.kiro/skills/code-structure/SKILL.md",
+    "skill://.kiro/skills/dev-workflow/SKILL.md",
+    "skill://.kiro/skills/security-constraints/SKILL.md",
+    "skill://.kiro/skills/e2e-keyword-driven-pattern/SKILL.md",
+    "skill://.kiro/skills/adr-quick-reference/SKILL.md"
+  ],
+  "hooks": {
+    "agentSpawn": [
+      {
+        "command": "bash .kiro/scripts/session-start-hook.sh"
+      }
+    ],
+    "userPromptSubmit": [
+      {
+        "command": "git branch --show-current 2>/dev/null && git diff --stat HEAD 2>/dev/null | tail -1 && ls -d .kiro/specs/*/requirements.md 2>/dev/null | head -5 | sed 's/^/📋 /'",
+        "cache_ttl_seconds": 30
+      }
+    ],
+    "stop": [
+      {
+        "command": "bash .kiro/scripts/stop-hook.sh"
+      }
+    ],
+    "preToolUse": [
+      {
+        "matcher": "shell",
+        "command": "bash .kiro/scripts/security-hook.sh"
+      },
+      {
+        "matcher": "write",
+        "command": "bash .kiro/scripts/guard-schema-hook.sh"
+      }
+    ],
+    "postToolUse": [
+      {
+        "matcher": "write",
+        "command": "bash .kiro/scripts/prettier-hook.sh",
+        "timeout_ms": 15000
+      },
+      {
+        "matcher": "shell",
+        "command": "bash .kiro/scripts/test-summary-hook.sh"
+      }
+    ]
+  },
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@0.0.70"
+      ]
+    }
+  },
+  "keyboardShortcut": "ctrl+shift+e",
+  "welcomeMessage": "Generating E2E tests with TypeScript Keyword-Driven approach. Changes limited to frontend/tests/ only.\nIf a spec exists in .kiro/specs/, I will read requirements.md first and design the test scenarios."
+}

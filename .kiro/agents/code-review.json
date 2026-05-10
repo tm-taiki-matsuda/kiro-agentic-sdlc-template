@@ -1,0 +1,92 @@
+{
+  "name": "code-review",
+  "description": "Reviews implemented code for ADR compliance, security, and test coverage. Does not modify code (read-only).",
+  "model": "claude-sonnet-4.6",
+  "prompt": "file://../prompts/code-review.md",
+  "tools": [
+    "fs_read",
+    "execute_bash",
+    "grep",
+    "glob",
+    "code",
+    "task",
+    "knowledge"
+  ],
+  "allowedTools": [
+    "code",
+    "fs_read",
+    "glob",
+    "grep",
+    "knowledge",
+    "task"
+  ],
+  "resources": [
+    "file://tasks/todo.md",
+    "file://tasks/lessons.md",
+    {
+      "type": "knowledgeBase",
+      "source": "file://./design",
+      "name": "Design Documents",
+      "indexType": "best",
+      "include": [
+        "**/*.md",
+        "**/*.yaml"
+      ],
+      "exclude": [
+        "**/context/**",
+        "**/tmp/**",
+        "**/review/**",
+        "**/old/**",
+        "**/issues/**",
+        "**/md/**"
+      ],
+      "autoUpdate": true
+    },
+    "skill://.kiro/skills/tech-stack/SKILL.md",
+    "skill://.kiro/skills/code-structure/SKILL.md",
+    "skill://.kiro/skills/product-context/SKILL.md",
+    "skill://.kiro/skills/security-constraints/SKILL.md",
+    "skill://.kiro/skills/dev-workflow/SKILL.md",
+    "skill://.kiro/skills/error-handling-pattern/SKILL.md",
+    "skill://.kiro/skills/test-framework/SKILL.md",
+    "skill://.kiro/skills/workflow-diagrams/SKILL.md",
+    "skill://.kiro/skills/adr-quick-reference/SKILL.md"
+  ],
+  "hooks": {
+    "agentSpawn": [
+      {
+        "command": "bash .kiro/scripts/session-start-hook.sh"
+      }
+    ],
+    "userPromptSubmit": [
+      {
+        "command": "git branch --show-current 2>/dev/null && git diff --stat HEAD 2>/dev/null | tail -1 && ls -d .kiro/specs/*/requirements.md 2>/dev/null | head -5 | sed 's/^/📋 /'",
+        "cache_ttl_seconds": 30
+      }
+    ],
+    "preToolUse": [
+      {
+        "matcher": "shell",
+        "command": "bash .kiro/scripts/security-hook.sh"
+      }
+    ],
+    "postToolUse": [
+      {
+        "matcher": "shell",
+        "command": "bash .kiro/scripts/test-summary-hook.sh"
+      }
+    ],
+    "stop": [
+      {
+        "command": "bash .kiro/scripts/stop-hook.sh"
+      }
+    ]
+  },
+  "keyboardShortcut": "ctrl+shift+r",
+  "welcomeMessage": "Performing code review (read-only). No file modifications. Please specify the target branch or files.",
+  "toolsSettings": {
+    "execute_bash": {
+      "autoAllowReadonly": true
+    }
+  }
+}

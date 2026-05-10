@@ -1,0 +1,25 @@
+{
+  "_note": {
+    "compaction.excludeContextWindowPercent": "20%: Exclude the most recent context from compaction. Adjust if issues arise since there is no empirical data.",
+    "compaction.excludeMessages": "4: Exclude the most recent 4 messages from compaction. Preserves the agent's immediate work context."
+  },
+  "chat.defaultModel": "claude-sonnet-4.6",
+  "chat.enableThinking": true,
+  "chat.enableKnowledge": true,
+  "chat.enableSubagent": true,
+  "chat.enableTodoList": true,
+  "chat.enableCodeIntelligence": true,
+  "chat.greeting.enabled": true,
+  "knowledge.indexType": "best",
+  "compaction.excludeContextWindowPercent": 20,
+  "compaction.excludeMessages": 4,
+  "knowledge.defaultExcludePatterns": [
+    "node_modules/**",
+    "dist/**",
+    ".next/**",
+    "out/**",
+    "coverage/**",
+    ".git/**",
+    "*.lock"
+  ]
+}
