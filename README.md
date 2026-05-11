@@ -1,14 +1,18 @@
-# kiro-framework
+# kiro-agentic-sdlc-template
 
-A framework for AI-driven development with kiro-cli.
-Designed for monorepo projects using Next.js + Fastify + Prisma + TypeScript.
+A kiro-cli template for governed agentic SDLC workflows.
+
+This repository demonstrates how to structure AI-assisted software delivery using role-separated agents, write-scope restrictions, approval gates, TDD workflows, hooks, review policies, and documentation-driven development.
+
+It is designed as a reusable template for teams that want to integrate AI agents into software delivery while maintaining clear responsibilities, quality controls, and operational discipline.
 
 ---
 
 ## Overview
 
-This framework is a generalized template of kiro-cli configuration (agents, skills, prompts, hooks, and workflows).
-Copy it to a new project and immediately start AI-driven Spec-Driven Development.
+This repository is a generalized kiro-cli configuration template, including agents, skills, prompts, hooks, and workflows.
+
+Use it to bootstrap AI-driven, Spec-Driven Development in a new project with predefined agent roles, permissions, workflow patterns, and operational guardrails.
 
 ### Target Tech Stack
 
@@ -26,7 +30,7 @@ Copy it to a new project and immediately start AI-driven Spec-Driven Development
 ## Directory Structure
 
 ```
-kiro-framework/
+kiro-agentic-sdlc-template/
 ├── .kiro/                    kiro-cli configuration
 │   ├── agents/               agent definitions (13 agents)
 │   ├── prompts/              agent prompts (13 files)
